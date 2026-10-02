@@ -1,12 +1,19 @@
-!.env.example
+node_modules/
+server/dist/
+web/dist/
+data/
+secrets/
+backups/
 *.log
 .DS_Store
+
+# environment / secrets (keep the example)
 .env
 .env.*
-data/
-e2e/.tmp/
-node_modules/
-playwright-report/
-server/dist/
+!.env.example
+
+# test output
 test-results/
-web/dist/
+playwright-report/
+e2e/.tmp/
+.sandbox-ca.crt
