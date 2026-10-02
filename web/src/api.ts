@@ -45,13 +45,39 @@ async function handle<T>(res: Response, path: string): Promise<T> {
   return body as T;
 }
 
+let accessCheck: Promise<boolean> | null = null;
+/**
+ * Behind Cloudflare Access, an expired Access session turns API calls into a
+ * cross-origin redirect to the Access login page, which fetch reports as a
+ * network error. Detect that and reload so the browser shows the Access login.
+ */
+export function checkAccessRedirect(): Promise<boolean> {
+  accessCheck ??= fetch('/api/auth/state', { redirect: 'manual', credentials: 'same-origin' })
+    .then((r) => {
+      if (r.type === 'opaqueredirect') {
+        location.reload();
+        return true;
+      }
+      return false;
+    })
+    .catch(() => false)
+    .finally(() => setTimeout(() => (accessCheck = null), 5000));
+  return accessCheck;
+}
+
 export async function request<T = unknown>(method: string, path: string, body?: unknown): Promise<T> {
-  const res = await fetch(path, {
-    method,
-    headers: headers(body !== undefined),
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-    credentials: 'same-origin',
-  });
+  let res: Response;
+  try {
+    res = await fetch(path, {
+      method,
+      headers: headers(body !== undefined),
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      credentials: 'same-origin',
+    });
+  } catch (err) {
+    if (navigator.onLine && (await checkAccessRedirect())) throw new ApiError(0, 'Signing in again…');
+    throw new ApiError(0, navigator.onLine ? 'Cannot reach the server' : 'You are offline');
+  }
   return handle<T>(res, path);
 }
 

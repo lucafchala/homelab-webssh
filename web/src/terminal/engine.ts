@@ -7,6 +7,7 @@ import { Unicode11Addon } from '@xterm/addon-unicode11';
 import { WebglAddon } from '@xterm/addon-webgl';
 import { getTheme } from './themes';
 import { prefs, toast, view } from '../state';
+import { checkAccessRedirect } from '../api';
 import { isTouch } from '../util';
 import type { Host } from '../types';
 
@@ -229,6 +230,7 @@ export class TerminalController {
 
   private scheduleReconnect() {
     updateTab(this.key, { status: 'reconnecting', message: 'Connection lost — reconnecting…' });
+    if (this.retry >= 2 && navigator.onLine) void checkAccessRedirect();
     const delay = Math.min(15_000, 1000 * 2 ** Math.min(this.retry, 4));
     this.retry++;
     if (this.retryTimer) clearTimeout(this.retryTimer);

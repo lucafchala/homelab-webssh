@@ -85,7 +85,9 @@ function parseTrustProxy(v: string): boolean | number | string[] {
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
-  const parsed = EnvSchema.safeParse(env);
+  // Treat `KEY=` (empty) in .env the same as an unset variable.
+  const cleaned = Object.fromEntries(Object.entries(env).filter(([, v]) => v !== undefined && v.trim() !== ''));
+  const parsed = EnvSchema.safeParse(cleaned);
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `  ${i.path.join('.')}: ${i.message}`).join('\n');
     throw new Error(`Invalid configuration:\n${issues}`);

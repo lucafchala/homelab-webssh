@@ -163,3 +163,17 @@ describe('sessions', () => {
     expect(store.resolve(promoted.token)).toBeNull();
   });
 });
+
+describe('config', () => {
+  it('treats empty env values as unset', async () => {
+    const { loadConfig } = await import('../src/config.js');
+    const os = await import('node:os');
+    const c = loadConfig({ DATA_DIR: os.tmpdir(), SETUP_TOKEN: '', AI_PROVIDER: '', MASTER_KEY: '', PUBLIC_URL: 'https://webssh.example.com', REQUIRE_2FA: '' });
+    expect(c.setupToken).toBeUndefined();
+    expect(c.ai.provider).toBe('none');
+    expect(c.masterKey).toBeUndefined();
+    expect(c.require2fa).toBe(true);
+    expect(c.secureCookies).toBe(true);
+    expect(c.rpId).toBe('webssh.example.com');
+  });
+});

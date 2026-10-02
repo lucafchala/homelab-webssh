@@ -1,0 +1,28 @@
+# ALTERNATIVE to Cloudflare Tunnel: Caddy reverse proxy with automatic Let's Encrypt
+# certificates. Requires forwarding TCP 80/443 on your router to this machine,
+# which exposes your IP — prefer Cloudflare Tunnel (docs/CLOUDFLARE.md).
+#
+# Also handy as a LAN-only entry point (e.g. https://webssh.home.arpa with `tls internal`).
+
+webssh.lucafchala.com {
+	encode zstd gzip
+	reverse_proxy 127.0.0.1:8080 {
+		# WebSockets work out of the box; keep long-lived terminals open.
+		flush_interval -1
+		transport http {
+			read_timeout 0
+			write_timeout 0
+		}
+	}
+	header -Server
+	log {
+		output file /var/log/caddy/webssh.log
+		format json
+	}
+}
+
+# LAN-only example with Caddy's internal CA:
+# webssh.home.arpa {
+# 	tls internal
+# 	reverse_proxy 127.0.0.1:8080
+# }

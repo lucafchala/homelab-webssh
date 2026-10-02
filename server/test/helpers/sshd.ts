@@ -34,7 +34,11 @@ export async function startSshd(): Promise<TestSshd> {
   fs.writeFileSync(authorizedKeys, '', { mode: 0o600 });
   const port = await freePort();
   const user = os.userInfo().username;
-  fs.mkdirSync('/run/sshd', { recursive: true, mode: 0o755 });
+  try {
+    fs.mkdirSync('/run/sshd', { recursive: true, mode: 0o755 }); // privilege-separation dir (root only)
+  } catch {
+    /* non-root: sshd skips privsep chroot and can only log in as the current user, which is all we need */
+  }
   const config = [
     `Port ${port}`,
     'ListenAddress 127.0.0.1',

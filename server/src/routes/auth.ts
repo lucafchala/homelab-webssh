@@ -104,11 +104,11 @@ export function registerAuthRoutes(app: FastifyInstance, ctx: AppContext, guards
     }
     const policy = checkPasswordPolicy(body.password, body.username);
     if (policy) throw badRequest(policy);
+    const passwordHash = await hashPassword(body.password);
     const user = db.tx(() => {
       if (Users.count(db) > 0) throw forbidden('Setup already completed');
-      return Users.create(db, { username: body.username, passwordHash: '', role: 'admin', displayName: body.displayName });
+      return Users.create(db, { username: body.username, passwordHash, role: 'admin', displayName: body.displayName });
     });
-    Users.update(db, user.id, { password_hash: await hashPassword(body.password) });
     ctx.setupToken = null;
     audit.write({ userId: user.id, username: user.username, ip: clientIp(req), action: 'auth.setup' });
     issueFullSession(reply, req, user);

@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+server/dist
+web/dist
+data
+.env
+.env.*
+!.env.example
+secrets
+e2e/.tmp
+test-results
+playwright-report
+.git
+*.log

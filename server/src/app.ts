@@ -96,7 +96,7 @@ export async function buildApp(config: Config, opts: BuildOptions = {}): Promise
       useDefaults: false,
       directives: {
         defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
+        scriptSrc: ["'self'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
         imgSrc: ["'self'", 'data:', 'blob:'],
         fontSrc: ["'self'", 'data:'],

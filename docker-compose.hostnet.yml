@@ -1,0 +1,15 @@
+# Optional override: run WebSSH on the host network so Wake-on-LAN broadcasts
+# reach your LAN (bridge networks can't send LAN broadcasts).
+#   docker compose -f docker-compose.yml -f docker-compose.hostnet.yml up -d
+# With this override cloudflared must point at http://localhost:8080 (the setup
+# script / docs explain how), and WebSSH listens on 127.0.0.1 only.
+services:
+  webssh:
+    network_mode: host
+    networks: !reset []
+    extra_hosts: !reset []
+    environment:
+      HOST: 127.0.0.1
+  cloudflared:
+    network_mode: host
+    networks: !reset []

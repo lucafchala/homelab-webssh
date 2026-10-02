@@ -1,0 +1,40 @@
+# Bare-metal install (without Docker). See docs/INSTALL.md → "Without Docker".
+#   sudo cp deploy/systemd/webssh.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now webssh
+[Unit]
+Description=WebSSH homelab console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=webssh
+Group=webssh
+WorkingDirectory=/opt/webssh
+EnvironmentFile=/etc/webssh/webssh.env
+Environment=NODE_ENV=production DATA_DIR=/var/lib/webssh
+ExecStart=/usr/bin/node --disable-warning=ExperimentalWarning /opt/webssh/server/dist/index.js
+Restart=on-failure
+RestartSec=3
+
+# Sandboxing
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictNamespaces=true
+LockPersonality=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+StateDirectory=webssh
+StateDirectoryMode=0700
+ReadWritePaths=/var/lib/webssh
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

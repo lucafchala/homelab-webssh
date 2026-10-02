@@ -1,0 +1,72 @@
+# WebSSH homelab stack — 100% free:
+#   webssh       the app (no ports published to your LAN or the internet)
+#   cloudflared  Cloudflare Tunnel: outbound-only connection to Cloudflare's edge,
+#                so you never open a port on your router
+#   ollama       optional free local AI model (`docker compose --profile ai up -d`)
+#
+# Quick start:  cp .env.example .env  →  edit it  →  docker compose up -d --build
+name: webssh
+
+services:
+  webssh:
+    build: .
+    image: webssh-homelab:latest
+    container_name: webssh
+    restart: unless-stopped
+    init: true
+    env_file: .env
+    volumes:
+      - webssh-data:/data
+    extra_hosts:
+      # lets you add the Docker host itself as a target: hostname "host.docker.internal"
+      - "host.docker.internal:host-gateway"
+    networks: [webssh]
+    # Hardening
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    mem_limit: 768m
+    pids_limit: 512
+    # Uncomment to reach it directly on this machine (testing / LAN-only use):
+    # ports: ["127.0.0.1:8080:8080"]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "5" }
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: webssh-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?set CLOUDFLARE_TUNNEL_TOKEN in .env (see docs/CLOUDFLARE.md)}
+    depends_on: [webssh]
+    networks: [webssh]
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: webssh-ollama
+    profiles: [ai]
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    networks: [webssh]
+    # NVIDIA GPU (requires nvidia-container-toolkit) — uncomment:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+
+volumes:
+  webssh-data:
+  ollama:
+
+networks:
+  webssh:

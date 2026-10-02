@@ -231,6 +231,20 @@ describe.skipIf(!SSHD)('integration: real sshd', () => {
     expect(cast.text).toContain('marker-42');
   });
 
+  it('rejects unauthenticated and cross-origin WebSocket upgrades', async () => {
+    const tryWs = (headers: Record<string, string>) =>
+      new Promise<number>((resolve) => {
+        const ws = new WebSocket(base.replace('http', 'ws') + '/api/terminal/ws', { headers });
+        ws.on('open', () => (ws.close(), resolve(101)));
+        ws.on('unexpected-response', (_req, res) => resolve(res.statusCode ?? 0));
+        ws.on('error', () => resolve(-1));
+      });
+    expect(await tryWs({ origin: base })).toBe(401);
+    expect(await tryWs({ origin: 'https://evil.example', cookie: c().cookieHeader() })).toBe(403);
+    expect(await tryWs({ cookie: c().cookieHeader() })).toBe(403);
+    expect(await tryWs({ origin: base, cookie: c().cookieHeader() })).toBe(101);
+  });
+
   it('prompts for an unknown host key on the WebSocket and can reject it', async () => {
     const h = await c().post('/api/hosts', { name: 'unknown key', hostname: 'localhost', port: sshd.port, username: sshd.user, authType: 'key', keyId });
     const t = openTerminal(base, c());

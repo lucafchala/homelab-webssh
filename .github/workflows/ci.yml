@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install OpenSSH server (integration tests talk to a real sshd)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq openssh-server
+          sudo mkdir -p /run/sshd
+      - run: npm ci
+      - run: npm run typecheck
+      # Run as root so the throwaway sshd can allocate pseudo-terminals for the terminal tests.
+      - run: sudo -E env "PATH=$PATH" npm test
+      - run: npm run build
+      - name: Check the built UI contains no inline scripts (CSP)
+        run: "! grep -E '<script>[^<]' web/dist/index.html"
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          tags: webssh-homelab:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
