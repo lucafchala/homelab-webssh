@@ -12,12 +12,12 @@ WebSSH is published through **Cloudflare Tunnel** and protected by **Cloudflare 
 
 ## Prerequisites
 
-1. A Cloudflare account (free) with `lucafchala.com` added as a zone (your nameservers point to Cloudflare).
+1. A Cloudflare account (free) with `example.com` added as a zone (your nameservers point to Cloudflare).
 2. The WebSSH stack checked out on the homelab machine (see [INSTALL.md](INSTALL.md)).
 
 ## Option A — automated (recommended)
 
-1. **Activate Zero Trust once.** Open <https://one.dash.cloudflare.com/>, pick a **team name** (e.g. `lucafchala` → `lucafchala.cloudflareaccess.com`) and choose the **Free** plan.
+1. **Activate Zero Trust once.** Open <https://one.dash.cloudflare.com/>, pick a **team name** (e.g. `yourteam` → `yourteam.cloudflareaccess.com`) and choose the **Free** plan.
 2. **Create an API token** at <https://dash.cloudflare.com/profile/api-tokens> → *Create Token* → *Custom token*:
 
    | Scope | Permission | Access |
@@ -25,19 +25,19 @@ WebSSH is published through **Cloudflare Tunnel** and protected by **Cloudflare 
    | Account | Cloudflare Tunnel | Edit |
    | Account | Access: Apps and Policies | Edit |
    | Account | Access: Organizations, Identity Providers, and Groups | Read |
-   | Zone (lucafchala.com) | DNS | Edit |
+   | Zone (example.com) | DNS | Edit |
 
    Copy the token. You can delete it after setup; nothing stores it.
-3. **Find your Account ID**: dashboard → `lucafchala.com` → right sidebar → *Account ID*.
+3. **Find your Account ID**: dashboard → `example.com` → right sidebar → *Account ID*.
 4. **Run the script** in the repository folder on the homelab:
 
    ```bash
    CF_API_TOKEN=xxxx CF_ACCOUNT_ID=yyyy ./deploy/cloudflare-setup.sh \
-     --hostname webssh.lucafchala.com \
-     --email lfchala4@gmail.com
+     --hostname webssh.example.com \
+     --email you@example.com
    ```
 
-   It creates (or updates, so it's safe to re-run) the tunnel `webssh-homelab`, routes `webssh.lucafchala.com → http://webssh:8080`, creates the proxied DNS record and the Access application + "WebSSH owners" policy, then writes `CLOUDFLARE_TUNNEL_TOKEN`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD` and `PUBLIC_URL` into `.env`.
+   It creates (or updates, so it's safe to re-run) the tunnel `webssh-homelab`, routes `webssh.example.com → http://webssh:8080`, creates the proxied DNS record and the Access application + "WebSSH owners" policy, then writes `CLOUDFLARE_TUNNEL_TOKEN`, `CF_ACCESS_TEAM_DOMAIN`, `CF_ACCESS_AUD` and `PUBLIC_URL` into `.env`.
 5. `docker compose up -d` — the `cloudflared` container connects, and within ~30 s the tunnel shows **Healthy** in *Networking → Tunnels*.
 
 Requirements: `curl` and `jq` (`sudo apt install -y jq`).
@@ -51,19 +51,19 @@ Requirements: `curl` and `jq` (`sudo apt install -y jq`).
    CLOUDFLARE_TUNNEL_TOKEN=eyJ...
    ```
    Don't run their `docker run` command; our `docker-compose.yml` already includes `cloudflared`.
-3. **Public hostname / published application route**: subdomain `webssh`, domain `lucafchala.com`, service **HTTP** → `webssh:8080`.
+3. **Public hostname / published application route**: subdomain `webssh`, domain `example.com`, service **HTTP** → `webssh:8080`.
    If you use the host-network override (`docker-compose.hostnet.yml`, for Wake-on-LAN), use `localhost:8080` instead.
 4. Save. The DNS record is created automatically.
 
 ### 2. Access application
 1. Zero Trust → **Access controls → Applications → Add an application → Self-hosted**.
-2. Name `WebSSH`, public hostname `webssh.lucafchala.com`, session duration `24h`.
-3. **Policy**: action **Allow**, include → **Emails** → `lfchala4@gmail.com` (add family/friends here if needed).
+2. Name `WebSSH`, public hostname `webssh.example.com`, session duration `24h`.
+3. **Policy**: action **Allow**, include → **Emails** → `you@example.com` (add family/friends here if needed).
 4. Login methods: *One-time PIN* is on by default. You can add **Google** or **GitHub** under *Integrations → Identity providers* (free).
 5. Save, then open the application's **Overview** and copy the **Application Audience (AUD) Tag**.
 6. In `.env`:
    ```
-   CF_ACCESS_TEAM_DOMAIN=lucafchala.cloudflareaccess.com
+   CF_ACCESS_TEAM_DOMAIN=yourteam.cloudflareaccess.com
    CF_ACCESS_AUD=<the AUD tag>
    ```
 7. `docker compose up -d` to apply.
@@ -71,7 +71,7 @@ Requirements: `curl` and `jq` (`sudo apt install -y jq`).
 ## Recommended free extras
 
 - **SSL/TLS → Edge Certificates**: *Always Use HTTPS* on, *Minimum TLS* 1.2.
-- **Security → WAF → Custom rules** (5 free): e.g. *block when Country not in {your countries}* for `webssh.lucafchala.com`. This is a cheap extra layer.
+- **Security → WAF → Custom rules** (5 free): e.g. *block when Country not in {your countries}* for `webssh.example.com`. This is a cheap extra layer.
 - **Rocket Loader / Auto-minify** must stay **off** for this hostname (they rewrite scripts; the app's CSP blocks them anyway).
 - **WebSockets** are enabled by default (Network → WebSockets). Terminals need them.
 - In Access settings, you can also require a hardware key or a specific country.
@@ -79,7 +79,7 @@ Requirements: `curl` and `jq` (`sudo apt install -y jq`).
 ## Verify
 
 ```bash
-curl -sI https://webssh.lucafchala.com | head -3     # → 302 redirect to <team>.cloudflareaccess.com (Access is working)
+curl -sI https://webssh.example.com | head -3     # → 302 redirect to <team>.cloudflareaccess.com (Access is working)
 docker compose logs cloudflared | tail                # → "Registered tunnel connection" ×4
 ```
 
@@ -92,7 +92,7 @@ In a private browser window: open the URL → Access PIN page → enter your ema
 | `Error 1033` / tunnel down | `docker compose logs cloudflared` — usually a wrong/missing `CLOUDFLARE_TUNNEL_TOKEN`. |
 | `502 Bad Gateway` | The route points at the wrong service. It must be `http://webssh:8080` (bridge network) or `http://localhost:8080` (host network). Check `docker compose ps`. |
 | WebSSH says *"Forbidden: Cloudflare Access required"* | `CF_ACCESS_AUD` / `CF_ACCESS_TEAM_DOMAIN` don't match the Access application, or you're hitting the app directly (LAN/port) while Access validation is enabled. |
-| *"Cross-origin request rejected (check PUBLIC_URL)"* | `PUBLIC_URL` in `.env` must be exactly `https://webssh.lucafchala.com` (no trailing slash). |
+| *"Cross-origin request rejected (check PUBLIC_URL)"* | `PUBLIC_URL` in `.env` must be exactly `https://webssh.example.com` (no trailing slash). |
 | Terminal stuck on *Reconnecting* after a long idle | Your Access session expired. The app detects this and reloads into the Access login. If it doesn't, refresh the page. |
 | Passkeys fail | Passkeys are bound to `PUBLIC_URL`'s hostname; they don't work if you browse via an IP or another hostname. |
 

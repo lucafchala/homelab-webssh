@@ -14,8 +14,8 @@
 #
 # Usage:
 #   CF_API_TOKEN=... CF_ACCOUNT_ID=... ./deploy/cloudflare-setup.sh \
-#       --hostname webssh.lucafchala.com --email you@example.com [--email other@example.com] \
-#       [--service http://webssh:8080] [--env-file .env] [--zone lucafchala.com] [--no-access]
+#       --hostname webssh.example.com --email you@example.com [--email other@example.com] \
+#       [--service http://webssh:8080] [--env-file .env] [--zone example.com] [--no-access]
 set -euo pipefail
 
 API="${CF_API_BASE:-https://api.cloudflare.com/client/v4}"
@@ -46,7 +46,7 @@ command -v jq >/dev/null || die "jq is required (apt install jq)"
 command -v curl >/dev/null || die "curl is required"
 [[ -n "${CF_API_TOKEN:-}" ]] || die "set CF_API_TOKEN"
 [[ -n "${CF_ACCOUNT_ID:-}" ]] || die "set CF_ACCOUNT_ID (dashboard → any domain → Overview → right sidebar → Account ID)"
-[[ -n "$HOSTNAME_" ]] || die "--hostname is required (e.g. webssh.lucafchala.com)"
+[[ -n "$HOSTNAME_" ]] || die "--hostname is required (e.g. webssh.example.com)"
 [[ $NO_ACCESS -eq 1 || ${#EMAILS[@]} -gt 0 ]] || die "pass at least one --email allowed through Cloudflare Access (or --no-access)"
 
 cf() { # method path [json]

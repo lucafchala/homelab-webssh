@@ -1,6 +1,14 @@
+> [!WARNING]
+> **Vibe-code alert:** about 99% of this project was vibe-coded — written by an AI (Claude) from plain-language prompts. It has a real test suite (unit, integration against a live `sshd`, and browser end-to-end tests), but most of the code has not been reviewed line by line by a human. This tool hands out shell access to your machines, so read the code — especially [the security-sensitive parts](AGENTS.md#security-invariants--never-break-these) — before trusting it with your infrastructure, and use it at your own risk.
+
 # WebSSH — your homelab in a browser tab
 
-A self-hosted, security-first web SSH console for your homelab. Open **https://webssh.lucafchala.com** on your laptop or phone and you get real terminals, a file manager, live host dashboards, Docker/systemd control, command help, and an optional AI assistant — without opening a single port on your router.
+[![CI](https://github.com/lucafchala/webssh.lucafchala.com/actions/workflows/ci.yml/badge.svg)](https://github.com/lucafchala/webssh.lucafchala.com/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Node 22+](https://img.shields.io/badge/node-22%2B-brightgreen)
+![Self-hosted](https://img.shields.io/badge/self--hosted-100%25%20free-orange)
+
+A self-hosted, security-first web SSH console for your homelab. Open it on your own domain (e.g. `https://webssh.example.com`) on your laptop or phone and you get real terminals, a file manager, live host dashboards, Docker/systemd control, command help, and an optional AI assistant — without opening a single port on your router.
 
 **It costs $0 to run.** It runs on your own hardware, reaches the internet through Cloudflare's free tier (Tunnel + Access + DNS), and is built entirely from open-source parts. The AI assistant is optional; it can use [Ollama](https://ollama.com) (free and local) or a paid API such as Claude.
 
@@ -65,12 +73,12 @@ git clone https://github.com/lucafchala/webssh.lucafchala.com.git webssh && cd w
 cp .env.example .env && chmod 600 .env
 sed -i "s|^MASTER_KEY=.*|MASTER_KEY=$(openssl rand -base64 32)|" .env
 # Create the tunnel + Access app (or follow docs/CLOUDFLARE.md in the dashboard):
-CF_API_TOKEN=… CF_ACCOUNT_ID=… ./deploy/cloudflare-setup.sh --hostname webssh.lucafchala.com --email you@example.com
+CF_API_TOKEN=… CF_ACCOUNT_ID=… ./deploy/cloudflare-setup.sh --hostname webssh.example.com --email you@example.com
 docker compose up -d --build
 docker compose logs webssh | grep -A3 "setup token"     # one-time token for the first admin
 ```
 
-Open `https://webssh.lucafchala.com`, sign in through Cloudflare Access, then create the admin account with the setup token and enrol 2FA. The full walkthrough is in [docs/INSTALL.md](docs/INSTALL.md).
+Open `https://webssh.example.com`, sign in through Cloudflare Access, then create the admin account with the setup token and enrol 2FA. The full walkthrough is in [docs/INSTALL.md](docs/INSTALL.md).
 
 ## Tech stack
 
@@ -87,6 +95,14 @@ npm run typecheck && npm run build
 ```
 
 See [AGENTS.md](AGENTS.md) for the project layout, conventions, and the security rules every change must keep.
+
+## Contributing
+
+Issues and pull requests are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Found a security problem? Please report it privately as described in [SECURITY.md](SECURITY.md).
+
+## Disclaimer
+
+WebSSH gives whoever logs in shell access to your machines. It is provided **as is, without warranty** (see the MIT license). You are responsible for how you deploy and secure it; follow the [hardening checklist](SECURITY.md#hardening-checklist).
 
 ## License
 

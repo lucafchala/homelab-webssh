@@ -3,6 +3,31 @@
   "version": "1.0.0",
   "private": true,
   "description": "Secure, mobile-friendly web SSH console for your homelab: terminals, SFTP, monitoring, snippets, command help and an AI assistant.",
+  "keywords": [
+    "ssh",
+    "web-ssh",
+    "homelab",
+    "self-hosted",
+    "terminal",
+    "xterm",
+    "sftp",
+    "cloudflare-tunnel",
+    "2fa",
+    "passkeys",
+    "docker",
+    "ai-assistant",
+    "ollama",
+    "claude"
+  ],
+  "homepage": "https://github.com/lucafchala/webssh.lucafchala.com#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucafchala/webssh.lucafchala.com.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lucafchala/webssh.lucafchala.com/issues"
+  },
+  "author": "lucafchala",
   "license": "MIT",
   "type": "module",
   "engines": {

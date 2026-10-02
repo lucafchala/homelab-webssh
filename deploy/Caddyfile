@@ -4,7 +4,7 @@
 #
 # Also handy as a LAN-only entry point (e.g. https://webssh.home.arpa with `tls internal`).
 
-webssh.lucafchala.com {
+webssh.example.com {
 	encode zstd gzip
 	reverse_proxy 127.0.0.1:8080 {
 		# WebSockets work out of the box; keep long-lived terminals open.

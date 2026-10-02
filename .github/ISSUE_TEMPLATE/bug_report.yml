@@ -1,0 +1,42 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Security issue?** Don't file it here — report it privately (see SECURITY.md).
+        Please remove hostnames, IPs, usernames and tokens from logs before posting.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Open … 2. Click … 3. See error"
+  - type: input
+    id: version
+    attributes:
+      label: Version / commit
+      placeholder: "e.g. v1.0.0 or the output of git rev-parse --short HEAD"
+  - type: dropdown
+    id: install
+    attributes:
+      label: How do you run it?
+      options: [Docker Compose + Cloudflare Tunnel, Docker Compose (other proxy), Without Docker (systemd), Other]
+  - type: input
+    id: client
+    attributes:
+      label: Browser / device
+      placeholder: "e.g. Safari on iPhone 15, Chrome 140 on Windows"
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: "`docker compose logs --tail=100 webssh` (redact secrets!)"
+      render: text

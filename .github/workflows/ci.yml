@@ -25,11 +25,12 @@ jobs:
           sudo mkdir -p /run/sshd
       - run: npm ci
       - run: npm run typecheck
-      # Run as root so the throwaway sshd can allocate pseudo-terminals for the terminal tests.
-      - run: sudo -E env "PATH=$PATH" npm test
       - run: npm run build
       - name: Check the built UI contains no inline scripts (CSP)
         run: "! grep -E '<script>[^<]' web/dist/index.html"
+      # Last, and as root, so the throwaway sshd can allocate pseudo-terminals for the terminal tests
+      # (running as root earlier would leave root-owned caches that break later steps).
+      - run: sudo -E env "PATH=$PATH" npm test
 
   docker:
     runs-on: ubuntu-latest

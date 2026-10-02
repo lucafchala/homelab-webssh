@@ -1,6 +1,6 @@
 # Installing WebSSH on your homelab
 
-This takes about 20 minutes. At the end, `https://webssh.lucafchala.com` works from any browser, on desktop or phone, protected by Cloudflare Access plus your own login with 2FA.
+This takes about 20 minutes. At the end, `https://webssh.example.com` works from any browser, on desktop or phone, protected by Cloudflare Access plus your own login with 2FA.
 
 > **Prefer to have it done for you?** Paste [HOMELAB_AGENT_PROMPT.md](../HOMELAB_AGENT_PROMPT.md) into an AI coding agent (for example Claude Code) running on the homelab machine. It follows this same guide, checks each step, and asks you before anything risky.
 
@@ -10,7 +10,7 @@ This takes about 20 minutes. At the end, `https://webssh.lucafchala.com` works f
 |---|---|
 | An always-on Linux machine on your LAN | Any x86-64 or ARM64 box: a mini PC, NAS, Proxmox VM/LXC, or Raspberry Pi 4/5. 1 CPU core and 512 MB RAM is plenty (plus RAM for Ollama if you want local AI). |
 | Docker Engine + Compose plugin | `curl -fsSL https://get.docker.com \| sh` (Debian/Ubuntu/Fedora). In a Proxmox LXC, enable *nesting*. |
-| A Cloudflare account with `lucafchala.com` | Free plan. The domain's nameservers must point to Cloudflare. |
+| A Cloudflare account with `example.com` | Free plan. The domain's nameservers must point to Cloudflare. |
 | An authenticator app | Aegis, 2FAS, Google Authenticator, 1Password, Bitwarden… or use passkeys. |
 
 Everything here is free.
@@ -37,7 +37,7 @@ sed -i "s|^MASTER_KEY=.*|MASTER_KEY=$(openssl rand -base64 32)|" .env
 **Back up `MASTER_KEY` in your password manager now.** Without it, saved SSH passwords and keys can't be decrypted.
 
 Open `.env` and check:
-- `PUBLIC_URL=https://webssh.lucafchala.com`
+- `PUBLIC_URL=https://webssh.example.com`
 - `SSH_TARGET_ALLOWLIST=192.168.0.0/16,10.0.0.0/8,100.64.0.0/10,172.16.0.0/12` — recommended. WebSSH can then only SSH into your own networks, never the internet. Adjust it to your LAN.
 
 The other values have sensible defaults; each one is explained in `.env.example`.
@@ -49,7 +49,7 @@ Follow [CLOUDFLARE.md](CLOUDFLARE.md). The short version:
 ```bash
 sudo apt install -y jq
 CF_API_TOKEN=<token> CF_ACCOUNT_ID=<id> ./deploy/cloudflare-setup.sh \
-  --hostname webssh.lucafchala.com --email lfchala4@gmail.com
+  --hostname webssh.example.com --email you@example.com
 ```
 
 This fills `CLOUDFLARE_TUNNEL_TOKEN`, `CF_ACCESS_TEAM_DOMAIN` and `CF_ACCESS_AUD` in `.env`.
@@ -66,7 +66,7 @@ The log shows a **one-time setup token**. Copy it.
 
 ## 5. First login
 
-1. Open `https://webssh.lucafchala.com`. Cloudflare Access asks for your email and sends you a PIN.
+1. Open `https://webssh.example.com`. Cloudflare Access asks for your email and sends you a PIN.
 2. WebSSH shows **First-time setup**: paste the setup token, choose a username and a strong password (12+ characters with mixed character types, or a 16+ character passphrase).
 3. **Secure your account**: scan the QR code with your authenticator app and enter the 6-digit code. **Save the 10 recovery codes** in your password manager.
 4. Optional but recommended: *Settings → Passkeys → Add passkey* on each device (Face ID / Touch ID / Windows Hello).
@@ -116,6 +116,17 @@ docker compose -f docker-compose.yml -f docker-compose.hostnet.yml up -d
 ```
 
 Then change the tunnel route's service to `http://localhost:8080` (Cloudflare dashboard → Tunnels → your tunnel → Public hostnames, or re-run the setup script with `--service http://localhost:8080`).
+
+## Prebuilt image (optional)
+
+Releases are published to GitHub Container Registry for `linux/amd64` and `linux/arm64` (Raspberry Pi). To skip building locally, replace `build: .` with the image in `docker-compose.yml`:
+
+```yaml
+  webssh:
+    image: ghcr.io/lucafchala/webssh.lucafchala.com:latest   # or a version tag like :1.0.0
+```
+
+Then update with `docker compose pull && docker compose up -d` instead of `--build`.
 
 ## Updating
 

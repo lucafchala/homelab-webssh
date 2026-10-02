@@ -30,7 +30,7 @@ const EnvSchema = z.object({
   HOST: z.string().optional().default('0.0.0.0'),
   PORT: int(8080, 1, 65535),
   DATA_DIR: z.string().optional().default('./data'),
-  /** Public URL users reach the app at, e.g. https://webssh.lucafchala.com */
+  /** Public URL users reach the app at, e.g. https://webssh.example.com */
   PUBLIC_URL: z.string().optional().default('http://localhost:8080'),
   /** Fastify trustProxy value: "true", "false", a hop count, or a comma separated list of CIDRs. */
   TRUST_PROXY: z.string().optional().default('loopback,linklocal,uniquelocal'),
