@@ -98,10 +98,11 @@ export function resolveHelp(query: string): HelpAnswer {
     }
   };
   if (exact) add(exact);
+  const wordStart = tokens.filter((t) => t.length > 2).map((t) => new RegExp(`(^|[^a-z0-9])${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
   for (const cmd of COMMANDS) {
     if (commands.length >= 8) break;
     const hay = `${cmd.name} ${cmd.summary} ${cmd.category}`.toLowerCase();
-    if (tokens.some((t) => t.length > 2 && hay.includes(t))) add(cmd);
+    if (wordStart.some((re) => re.test(hay))) add(cmd);
   }
 
   const bestRecipe = recipes[0]?.[0] ?? 0;
