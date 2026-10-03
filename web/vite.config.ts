@@ -6,7 +6,7 @@ const root = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig({
   root,
   publicDir: 'public',
-  esbuild: { jsx: 'automatic', jsxImportSource: 'preact' },
+  oxc: { jsx: { runtime: 'automatic', importSource: 'preact' } },
   resolve: {
     alias: { react: 'preact/compat', 'react-dom': 'preact/compat' },
   },
@@ -16,12 +16,20 @@ export default defineConfig({
     target: 'es2022',
     sourcemap: false,
     chunkSizeWarningLimit: 1200,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: (id) => {
-          if (id.includes('@xterm')) return 'xterm';
-          if (id.includes('@codemirror') || id.includes('@lezer') || id.includes('/codemirror/')) return 'codemirror';
-          return undefined;
+        // Rolldown's replacement for Rollup's `manualChunks` (same function, same chunks).
+        codeSplitting: {
+          groups: [
+            {
+              debugName: 'vendor',
+              name: (id) => {
+                if (id.includes('@xterm')) return 'xterm';
+                if (id.includes('@codemirror') || id.includes('@lezer') || id.includes('/codemirror/')) return 'codemirror';
+                return null;
+              },
+            },
+          ],
         },
       },
     },

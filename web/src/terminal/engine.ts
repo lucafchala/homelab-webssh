@@ -336,7 +336,7 @@ export class TerminalController {
     }
   }
 
-  sendBytes(bytes: Uint8Array) {
+  sendBytes(bytes: Uint8Array<ArrayBuffer>) {
     if (this.ws?.readyState === WebSocket.OPEN) this.ws.send(bytes);
   }
 

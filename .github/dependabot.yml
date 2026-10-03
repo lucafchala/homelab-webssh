@@ -9,6 +9,11 @@ updates:
       codemirror: { patterns: ["@codemirror/*", "codemirror"] }
       fastify: { patterns: ["fastify", "@fastify/*"] }
       dev-tooling: { dependency-type: development }
+    ignore:
+      # @types/node must match the runtime (Node 22: Dockerfile, CI, .nvmrc, engines); newer majors would
+      # type-check APIs that don't exist at runtime. Bump it by hand together with the Node version.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: docker
     directory: /
     schedule: { interval: weekly }
