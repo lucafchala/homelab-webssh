@@ -36,7 +36,7 @@ A self-hosted, security-first web SSH console for your homelab. Open it on your 
 - Full xterm.js terminals: 256-colour and truecolour, Unicode, clickable links, scrollback search, WebGL rendering
 - Tabs, a **split/grid view**, and **broadcast input** to type into several hosts at once
 - **Sessions survive disconnects.** Close the laptop and carry on from your phone: the shell keeps running on the server and re-attaches with the screen restored (server-side headless terminal)
-- **Phone-friendly:** an extra-keys bar (Esc, Tab, sticky Ctrl/Alt, arrows, F-keys, symbols), the keyboard never covers the prompt, and it installs as an app (PWA)
+- **Phone-friendly:** an extra-keys bar (Esc, Tab, sticky Ctrl/Alt/Shift, arrows, F-keys, symbols), the keyboard never covers the prompt, and it installs as an app (PWA)
 - Jump hosts (bastions), startup commands (e.g. `tmux new -As main`), host colours, groups, tags and favourites
 - Optional **session recording** (asciicast v2) with a built-in player
 - Wake-on-LAN, `~/.ssh/config` import, and `ssh-copy-id`-style key install

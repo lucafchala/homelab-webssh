@@ -177,8 +177,45 @@ test('mobile layout with key bar', async ({ browser }) => {
   }).catch(() => {});
   await expect(page.locator('.keybar')).toBeVisible();
   await expect(page.locator('.term-tab .dot.green').first()).toBeVisible({ timeout: 20_000 });
-  await page.locator('.keybar button', { hasText: 'Ctrl' }).click();
-  await expect(page.locator('.keybar button.on', { hasText: 'Ctrl' })).toBeVisible();
   await shot(page, '09-mobile-terminal');
+
+  // The key bar must actually drive the shell (touch taps, keyboard stays with the terminal).
+  const key = (label: string) => page.locator('.keybar button', { hasText: label }).first();
+  await page.locator('.xterm-host').first().tap();
+  await page.keyboard.type('echo kb-$((20+1))\n');
+  await expectScreen(page, 'kb-21');
+  await key('Ctrl').tap();
+  await expect(page.locator('.keybar button.on', { hasText: 'Ctrl' })).toBeVisible();
+  await page.keyboard.type('l'); // Ctrl+L → clears the screen
+  await expect.poll(() => screenText(page), { timeout: 10_000 }).not.toContain('kb-21');
+  await expect(page.locator('.keybar button.on')).toHaveCount(0); // sticky modifier is one-shot
+  await page.keyboard.type('sleep 60\n');
+  await key('^C').tap();
+  await page.keyboard.type('echo after-$((1+1))\n');
+  await expectScreen(page, 'after-2');
+  // Soft keyboards deliver characters via `input` events (no keydown) — the modifier must apply there too.
+  await page.keyboard.type('sleep 60\n');
+  await key('Ctrl').tap();
+  await page.keyboard.insertText('c');
+  await page.keyboard.type('echo ime-$((2+2))\n');
+  await expectScreen(page, 'ime-4');
+
+  // A modifier armed on the bar also applies to the bar's own keys: Ctrl+← = jump back one word.
+  await page.keyboard.type('echo one two');
+  await key('Ctrl').tap();
+  await key('←').tap();
+  await expect(page.locator('.keybar button.on')).toHaveCount(0);
+  await page.keyboard.type('X');
+  await expectScreen(page, 'echo one Xtwo');
+  await key('Ctrl').tap();
+  await page.keyboard.type('u'); // Ctrl+U → clear the line
+
+  // Shift on the bar capitalises the next soft-keyboard letter.
+  await page.keyboard.type('echo ');
+  await key('Shift').tap();
+  await expect(page.locator('.keybar button.on', { hasText: 'Shift' })).toBeVisible();
+  await page.keyboard.insertText('q');
+  await expectScreen(page, 'echo Q');
+  await shot(page, '10-mobile-keys');
   await ctx.close();
 });

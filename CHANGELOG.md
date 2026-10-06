@@ -2,6 +2,11 @@
 
 All notable changes to this project are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- Mobile key bar: Ctrl/Alt now also modify the bar's own keys (arrows, Home/End, PgUp/PgDn, Del, F1–F12, Tab) instead of staying armed and hijacking the next typed letter; added a **Shift** key (Shift+Tab = back-tab); modifier buttons expose `aria-pressed`.
+
 ## [1.0.0] — 2026-10-02
 
 First public release.

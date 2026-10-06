@@ -6,6 +6,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Unicode11Addon } from '@xterm/addon-unicode11';
 import { WebglAddon } from '@xterm/addon-webgl';
 import { getTheme } from './themes';
+import { applyModifiers } from './keys';
 import { prefs, toast, view } from '../state';
 import { checkAccessRedirect } from '../api';
 import { isTouch } from '../util';
@@ -32,6 +33,7 @@ export const layout = signal<'tabs' | 'grid'>('tabs');
 export const broadcastSet = signal<Set<string>>(new Set());
 export const stickyCtrl = signal(false);
 export const stickyAlt = signal(false);
+export const stickyShift = signal(false);
 
 /** Pending interactive question from a terminal connection (host key / password / 2FA prompt). */
 export interface PendingPrompt {
@@ -317,16 +319,12 @@ export class TerminalController {
 
   // ---------------------------------------------------------------- input / output
   private onUserInput(data: string) {
-    let d = data;
-    if (stickyCtrl.value && d.length === 1) {
-      const c = d.toUpperCase().charCodeAt(0);
-      if (c >= 64 && c <= 95) d = String.fromCharCode(c - 64);
-      else if (d === ' ') d = '\x00';
+    // One-shot modifiers armed on the key bar also apply to the bar's own keys (arrows, Home, F-keys, Tab).
+    const { data: d, used } = applyModifiers(data, { ctrl: stickyCtrl.value, alt: stickyAlt.value, shift: stickyShift.value });
+    if (used) {
       stickyCtrl.value = false;
-    }
-    if (stickyAlt.value) {
-      d = '\x1b' + d;
       stickyAlt.value = false;
+      stickyShift.value = false;
     }
     const targets = broadcastSet.value;
     if (targets.size > 1 && targets.has(this.key)) {
