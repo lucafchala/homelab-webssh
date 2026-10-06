@@ -40,8 +40,8 @@ For things that must survive even a server restart or more than 30 minutes away,
 
 ### On a phone
 
-- Tap the terminal to bring up the keyboard. The **key bar** above it has `Esc`, `Tab`, **Ctrl**, **Alt**, arrows, `^C` `^D` `^Z` `^L` `^R`, and symbols like `| ~ / -`. Swipe it or use `‹ ›` for more pages (Home/End/PgUp/PgDn/Del, brackets and symbols, F1–F12, `^A ^B ^E ^W ^U`).
-- **Ctrl and Alt are sticky**: tap **Ctrl**, then type `c` to send Ctrl-C.
+- Tap the terminal to bring up the keyboard. The **key bar** above it has `Esc`, `Tab`, **Ctrl**, **Alt**, **Shift**, arrows, `^C` `^D` `^Z` `^L` `^R`, and symbols like `| ~ / -`. Swipe it or use `‹ ›` for more pages (Home/End/PgUp/PgDn/Del, brackets and symbols, F1–F12, `^A ^B ^E ^W ^U`).
+- **Ctrl, Alt and Shift are sticky (one-shot)**: tap **Ctrl**, then type `c` to send Ctrl-C. They also work on the bar's own keys — **Ctrl** then `←` jumps back a word, **Shift** then `Tab` is back-tab. A lit key means it is armed; tap it again to cancel.
 - 📋 pastes, 🔍 searches scrollback, `{ }` inserts a snippet, ? opens help, ⌨ hides or shows the keyboard, and A−/A+ change the font size.
 - Install it as an app (see INSTALL.md §7) for a full-screen experience.
 

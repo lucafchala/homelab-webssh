@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
+import type { Signal } from '@preact/signals';
 import {
   ArrowDown, ArrowUp, Bot, ChevronLeft, ChevronRight, CircleHelp, Clipboard, Columns2, Keyboard, LayoutGrid, Minus, MonitorUp, Plus, Radio, RotateCw, Search, Square, X,
 } from 'lucide-preact';
 import {
-  activate, activeController, activeTab, broadcastSet, closeTab, getController, layout, openTerminal, pendingPrompt, stickyAlt, stickyCtrl, tabs, toggleBroadcast, type Tab,
+  activate, activeController, activeTab, broadcastSet, closeTab, getController, layout, openTerminal, pendingPrompt, stickyAlt, stickyCtrl, stickyShift, tabs, toggleBroadcast, type Tab,
 } from '../terminal/engine';
 import { aiSeed, confirmDialog, helpQuery, hostById, hosts, liveSessions, loadLiveSessions, me, prefs, savePrefs, sidePanel } from '../state';
 import { classNames, fillSnippet, isTouch, snippetVars, timeAgo } from '../util';
@@ -300,16 +301,19 @@ export function KeyBar({ onSearch }: { onSearch: () => void }) {
       {label}
     </button>
   );
+  // Sticky modifiers: tap once, then the next key (typed or from this bar) is sent with it.
+  const mod = (label: string, sig: Signal<boolean>) => (
+    <button class={sig.value ? 'on' : ''} aria-pressed={sig.value} onMouseDown={keepFocus} onClick={() => (sig.value = !sig.value)}>
+      {label}
+    </button>
+  );
   const pages = [
     <>
       {k('Esc', ESC)}
       {k('Tab', '\t')}
-      <button class={stickyCtrl.value ? 'on' : ''} onMouseDown={keepFocus} onClick={() => (stickyCtrl.value = !stickyCtrl.value)}>
-        Ctrl
-      </button>
-      <button class={stickyAlt.value ? 'on' : ''} onMouseDown={keepFocus} onClick={() => (stickyAlt.value = !stickyAlt.value)}>
-        Alt
-      </button>
+      {mod('Ctrl', stickyCtrl)}
+      {mod('Alt', stickyAlt)}
+      {mod('Shift', stickyShift)}
       {k('←', () => arrow('D'))}
       {k('↑', () => arrow('A'))}
       {k('↓', () => arrow('B'))}
