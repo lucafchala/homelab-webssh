@@ -48,7 +48,7 @@
     "icons": "node scripts/gen-icons.mjs"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.131.0",
+    "@anthropic-ai/sdk": "^0.135.0",
     "@fastify/cookie": "^11.1.2",
     "@fastify/helmet": "^13.1.1",
     "@fastify/multipart": "^10.1.2",
